@@ -21,7 +21,7 @@ CREATE TABLE Curso (
 	siglas VARCHAR(8) NOT NULL,
 	idProfesor INT UNIQUE NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY (idProfesor) REFERENCES Profesor(id)
+	FOREIGN KEY (idProfesor) REFERENCES Profesor(id) ON DELETE CASCADE
 
 );
 
@@ -36,8 +36,8 @@ CREATE TABLE Modulo (
 	limiteFaltas3 INT,
 	horas INT,
 	PRIMARY KEY (id),
-	FOREIGN KEY (idProfesor) REFERENCES Profesor(id),
-	FOREIGN KEY (idCurso) REFERENCES Curso(id)
+	FOREIGN KEY (idProfesor) REFERENCES Profesor(id) ON DELETE CASCADE,
+	FOREIGN KEY (idCurso) REFERENCES Curso(id) ON DELETE CASCADE
 
 );
 
@@ -52,7 +52,7 @@ CREATE TABLE Alumno (
 	direccion VARCHAR (96),
 	idCurso INT NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY (idCurso) REFERENCES curso(id)
+	FOREIGN KEY (idCurso) REFERENCES curso(id) ON DELETE CASCADE
 
 );
 
@@ -65,8 +65,8 @@ CREATE TABLE Nota (
 	idAlumno INT NOT NULL,
 	idModulo INT NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY (idModulo) REFERENCES modulo(id),
-	FOREIGN KEY (idAlumno) REFERENCES alumno(id)
+	FOREIGN KEY (idModulo) REFERENCES modulo(id) ON DELETE CASCADE,
+	FOREIGN KEY (idAlumno) REFERENCES alumno(id) ON DELETE CASCADE
     
 );
 
@@ -77,8 +77,8 @@ CREATE TABLE Falta (
 	idModulo INT NOT NULL,
 	evaluacion INT NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY (idModulo) REFERENCES modulo(id),
-	FOREIGN KEY (idAlumno) REFERENCES alumno(id)
+	FOREIGN KEY (idModulo) REFERENCES modulo(id) ON DELETE CASCADE,
+	FOREIGN KEY (idAlumno) REFERENCES alumno(id) ON DELETE CASCADE
 
 );
 
@@ -92,7 +92,7 @@ CREATE TABLE AlumnoHistorico (
 	fechaFin DATE NOT NULL,
 	anyoAcademico INT NOT NULL,
 	PRIMARY KEY (id),
-	FOREIGN KEY (idCurso) REFERENCES curso(id)
+	FOREIGN KEY (idCurso) REFERENCES curso(id) ON DELETE CASCADE
 
 );
 
