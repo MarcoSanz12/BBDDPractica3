@@ -82,6 +82,25 @@ CREATE TABLE Falta (
 
 );
 
+CREATE TABLE Boletin (
+
+	idAlumno INT NOT NULL,
+	nombre VARCHAR(96) NOT NULL,
+	curso VARCHAR(96) NOT NULL,
+	anyo INT NOT NULL,
+	notaE1 DOUBLE,
+	textoE1 VARCHAR(96),
+	notaE2 DOUBLE,
+	textoE2 VARCHAR(96),
+	notaE3 DOUBLE,
+	textoE3 VARCHAR(96),
+	fct VARCHAR(96),
+	proyecto DOUBLE,
+	PRIMARY KEY (idAlumno),
+	FOREIGN KEY (idAlumno) REFERENCES alumno(id) ON DELETE CASCADE
+
+);
+
 CREATE TABLE AlumnoHistorico (
 
 	id INT UNIQUE NOT NULL AUTO_INCREMENT,

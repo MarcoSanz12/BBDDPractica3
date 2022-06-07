@@ -159,7 +159,7 @@ delimiter ;
 
 /* V. Comprobar si un alumno se encuentra en un determinado modulo */
 
-DROP FUNCTION IF EXISTS 
+DROP FUNCTION IF EXISTS FunComprobarAlumnoModulo
 delimiter $$
 CREATE FUNCTION FunComprobarAlumnoModulo (PidAlumno INT,PidModulo INT)
 RETURNS BOOLEAN
@@ -180,5 +180,20 @@ RETURN inside;
 END$$
 
 delimiter ;
+
+/* VI. Actualizar boletines */
+DROP FUNCTION IF EXISTS actualizarBoletin
+delimiter $$
+CREATE FUNCTION actualizarBoletin ()
+RETURNS INT
+BEGIN
+
+	DECLARE alumnos 
+	CURSOR FOR (SELECT * FROM Alumno)
+
+END$$
+
+delimiter ;
+
 
 
