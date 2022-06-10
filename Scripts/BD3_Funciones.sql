@@ -181,19 +181,166 @@ END$$
 
 delimiter ;
 
-/* VI. Actualizar boletines */
+/* VI. Actualizar boletines DEPRECATED */
+
 DROP FUNCTION IF EXISTS actualizarBoletin
 delimiter $$
 CREATE FUNCTION actualizarBoletin ()
 RETURNS INT
 BEGIN
 
-	DECLARE alumnos 
-	CURSOR FOR (SELECT * FROM Alumno)
+DECLARE contador INT;
+
+DECLARE alumnosTotales INT;
+
+DECLARE curId INT;
+DECLARE curIdCurso INT;
+DECLARE curNombre VARCHAR (96);
+DECLARE curCurso VARCHAR (96);
+DECLARE curAnyo INT;
+
+DECLARE curNotaE1 DOUBLE;
+DECLARE curNotaE2 DOUBLE;
+DECLARE curNotaE3 DOUBLE;
+DECLARE curNotaF DOUBLE;
+
+DECLARE curTextoE1 VARCHAR(96);
+DECLARE curTextoE2 VARCHAR(96);
+DECLARE curTextoE3 VARCHAR(96);
+DECLARE curTextoF VARCHAR(96);
+
+DECLARE curModId INT;
+
+DECLARE curFct DOUBLE;
+DECLARE curProyecto DOUBLE;
+
+
+DECLARE var_final,modulosDone INTEGER DEFAULT 0;
+
+
+DECLARE cursor1 CURSOR FOR SELECT a.id,a.idCurso,a.nombre,c.nombre,c.anyo FROM Alumno a, Curso c WHERE a.idCurso = c.id;
+
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET var_final = 1;
+
+SET contador := 0;
+
+OPEN cursor1;
+
+  bucle: LOOP
+
+ 	FETCH cursor1 INTO curId,curIdCurso,curNombre,curCurso,curAnyo;
+
+IF var_final = 1 THEN
+      LEAVE bucle;
+END IF;
+
+
+BLOQUE_1: BEGIN
+        DECLARE curModulos CURSOR FOR SELECT id FROM Modulo WHERE idCurso = curIdCurso;
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET modulosDone = 1;
+        
+        OPEN curModulos; 
+    		modulos_loop: LOOP
+        FETCH FROM curModulos INTO curModId;
+
+            IF modulosDone = 1 THEN
+
+				LEAVE modulos_loop;
+
+            END IF; 
+
+		   SET @notaE1total := notaE1total + extraerNotaMedia(curId,1,curModId);
+
+        END LOOP modulos_loop;
+        END BLOQUE_1;
+
+	BLOQUE_2: BEGIN
+        DECLARE curModulos CURSOR FOR SELECT id FROM Modulo WHERE idCurso = curIdCurso;
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET modulosDone = 1;
+        OPEN curModulos; 
+    		modulos_loop: LOOP
+        FETCH FROM curModulos INTO curModId;   
+            IF modulosDone = 1 THEN
+
+				LEAVE modulos_loop;
+
+            END IF; 
+
+		   SET @notaE2total := notaE2total + extraerNotaMedia(curId,2,curModId);
+
+        END LOOP modulos_loop;
+
+        END BLOQUE_2;
+
+IF (curAnyo = 1) THEN
+	
+	BLOQUE_3: BEGIN
+        DECLARE curModulos CURSOR FOR SELECT id FROM Modulo WHERE idCurso = curIdCurso;
+        DECLARE CONTINUE HANDLER FOR NOT FOUND SET modulosDone = 1;
+        OPEN curModulos; 
+    		modulos_loop: LOOP
+        FETCH FROM curModulos INTO curModId;   
+            IF modulosDone = 1 THEN
+
+				LEAVE modulos_loop;
+
+            END IF; 
+
+		   SET @notaE3total := notaE3total + extraerNotaMedia(curId,3,curModId);
+
+        END LOOP modulos_loop;
+        END BLOQUE_3;
+
+
+		SET @notaE3total := (@notaE3total / (SELECT count(distinct(id)) FROM Modulo WHERE idCurso = curIdCurso));
+
+		SET curNotaE3 := truncadoNotaNumero(@notaE3total);
+		SET curTextoE3 := truncadoNotaTexto(@notaE3total);
+END IF;
+
+		SET @notaE1total := (@notaE1total / (SELECT count(distinct(id)) FROM Modulo WHERE idCurso = curIdCurso));
+
+		SET curNotaE1 := truncadoNotaNumero(@notaE1total);
+		SET curTextoE1 := truncadoNotaTexto(@notaE1total);
+
+		SET @notaE2total := (@notaE2total / (SELECT count(distinct(id)) FROM Modulo WHERE idCurso = curIdCurso));
+
+		SET curNotaE2 := truncadoNotaNumero(@notaE2total);
+		SET curTextoE2 := truncadoNotaTexto(@notaE2total);
+
+		SET @notaFinalBruta := ((@notaE1total + @notaE2total + @notaE3total)/3);
+
+		SET curNotaF := truncadoNotaNumero(@notaFinalBruta);
+		SET curTextoF := truncadoNotaTexto(@notaFinalBruta);
+
+		IF (curAnyo = 2) THEN
+			SET curFct := (SELECT calificacion FROM Nota WHERE idAlumno = curId AND tipo = 'fct');
+			SET curProyecto := (SELECT calificacion FROM Nota WHERE idAlumno = curId AND tipo = 'proyecto');
+		END IF;
+
+	IF ((SELECT count(*) FROM Boletin WHERE idAlumno = curId) > 0) THEN
+		
+		UPDATE Boletin SET idAlumno = curId, nombre = curNombre, curso = curCurso, anyo = curAnyo, notaE1 = curNotaE1, textoE1 = curTextoE1, notaE2 = curNotaE2, textoE2 = curTextoE2, notaE3 = curNotaE3, textoE3 = curTextoE3, notaF = curNotaF, textoF = curTextoF, fct = curFct, proyecto = curProyecto WHERE idAlumno = curId;
+
+		SET contador := contador + 1;
+		
+	ELSE
+		INSERT INTO Boletin VALUES (curId,curNombre,curCurso,curAnyo,curNotaE1,curTextoE1,curNotaE2,curTextoE2,curNotaE3,curTextoE3,curNotaF,curTextoF,curFct,curProyecto);
+
+		SET contador := contador + 1;
+	END IF;
+
+END LOOP bucle;
+ CLOSE cursor1;
+
+ RETURN contador;
+
+
 
 END$$
 
 delimiter ;
+
 
 
 

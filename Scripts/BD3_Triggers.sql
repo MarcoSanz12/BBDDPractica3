@@ -97,9 +97,20 @@ BEGIN
     SIGNAL SQLSTATE '23003' SET MYSQL_ERRNO = 1452,
 	MESSAGE_TEXT = 'ERROR! No se pueden introducir notas de fct o proyecto fuera del 2º curso';
 
+    /* Compruebo que un alumno no tenga más de 2 notas de práctica por módulo y trimestre */
+    ELSEIF (new.tipo = 'practica') THEN
+
+    SET @cantPracticas := (SELECT count(*) FROM nota WHERE tipo = 'practica' AND evaluacion = new.evaluacion AND idModulo = new.idModulo AND idAlumno = new.    idAlumno);
+
+        IF (@cantPracticas = 2) THEN
+            SIGNAL SQLSTATE '23013' SET MYSQL_ERRNO = 1452,
+	        MESSAGE_TEXT = 'ERROR! Ya hay 2 notas de práctica en esta evaluación y módulo';
+        END IF;
+
+
     /* Compruebo que la nota sea proyecto,fct,examen o practica */ 
     ELSEIF (new.tipo != 'fct' AND new.tipo != 'proyecto' AND new.tipo != 'examen' AND new.tipo != 'practica') THEN
-     SIGNAL SQLSTATE '23003' SET MYSQL_ERRNO = 1452,
+     SIGNAL SQLSTATE '23007' SET MYSQL_ERRNO = 1452,
 	MESSAGE_TEXT = 'ERROR! El tipo de nota introducido no es válido [fct, proyecto, examen, practica]';
     
     END IF;

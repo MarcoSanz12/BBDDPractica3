@@ -94,7 +94,9 @@ CREATE TABLE Boletin (
 	textoE2 VARCHAR(96),
 	notaE3 DOUBLE,
 	textoE3 VARCHAR(96),
-	fct VARCHAR(96),
+	notaF DOUBLE,
+	textoF VARCHAR(96),
+	fct DOUBLE,
 	proyecto DOUBLE,
 	PRIMARY KEY (idAlumno),
 	FOREIGN KEY (idAlumno) REFERENCES alumno(id) ON DELETE CASCADE
